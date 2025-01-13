@@ -1,10 +1,6 @@
 <template>
   <div class="hero_area">
-    <div class="hero_bg_box">
-      <div class="bg_img_box">
-        <img src="@/assets/images/hero-bg.png" alt="">
-      </div>
-    </div>
+    <HeroBackground/>
 
     <header class="header_section">
       <div class="container-fluid">
@@ -13,36 +9,43 @@
             <span>ATCrypto</span>
           </router-link>
 
-          <button class="navbar-toggler" @click="isNavOpen = !isNavOpen">
+          <button class="navbar-toggler" @click="navigationStore.toggleNav()">
             <span></span>
           </button>
 
-          <div class="navbar-collapse" :class="{ 'collapse': !isNavOpen }">
+          <div class="navbar-collapse" :class="{ 'collapse': !navigationStore.isNavOpen }">
             <ul class="navbar-nav">
-              <li class="nav-item">
-                <router-link class="nav-link" :to="{ name: 'Home' }" active-class="active">Home</router-link>
-              </li>
-              <li class="nav-item">
-                <router-link class="nav-link" :to="{ name: 'About' }">About</router-link>
-              </li>
-              <li class="nav-item">
-                <router-link class="nav-link" :to="{ name: 'Team' }">Team</router-link>
+              <li v-for="link in navigationStore.navLinks" :key="link.name" class="nav-item">
+                <router-link class="nav-link" :to="link.route" active-class="active">
+                  {{ link.name }}
+                </router-link>
               </li>
             </ul>
           </div>
         </nav>
       </div>
     </header>
+
   </div>
 </template>
 
 <script>
+import HeroBackground from "@/components/layout/HeroBackground.vue";
+import {useNavigationStore} from "@/stores/navigation.ts";
+
 export default {
   name: 'HeroSection',
+  components: {HeroBackground},
   data() {
     return {
       isNavOpen: false,
     }
+  },
+  setup() {
+    const navigationStore = useNavigationStore();
+    return {
+      navigationStore
+    };
   },
 }
 </script>
