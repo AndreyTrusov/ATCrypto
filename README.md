@@ -4,7 +4,7 @@ This project is a **Vue.js** based web application as a part of my Frontend Tech
 
 ## Project Overview
 
-This project is a **Vue.js** based web application for showcasing the features of the `ATCrypto` platform. It is structured to demonstrate reusable components, a clean UI, and robust state management using **Pinia**. The app includes several pages, including a homepage, an about page, services page, team page, and more. The site is designed to be responsive and follows modern web practices, making it easy to navigate and interact with.
+This project is a **Vue.js** based web application for showcasing the features of the `ATCrypto` platform. It is structured to demonstrate reusable components, a clean UI, and robust state management using **Pinia**. The app includes several pages, including a homepage, an about page, team page, and feedback page.
 
 ![image](https://github.com/user-attachments/assets/eb80cc91-75d5-4151-9cc9-c9c81c9c13e4)
 
