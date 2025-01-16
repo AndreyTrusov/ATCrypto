@@ -61,15 +61,14 @@ This project meets the following requirements:
 
 To run this project locally, follow these steps:
 
-1. Clone the repository:
 ```bash
-   git clone https://github.com/yourusername/your-repository-name.git```
-2. Install dependencies:
-```cd your-repository-name
-npm install```
-3. Run the development server:
-```npm run serve```
+    git clone https://github.com/yourusername/your-repository-name.git
 
-Open the app in your browser:
+    cd your-repository-name
+
+    npm install
+
+    npm run serve ```
+
 
 http://localhost:8080/
