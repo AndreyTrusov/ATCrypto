@@ -4,8 +4,8 @@ import InfoSection from "@/components/InfoSection.vue";
 import FooterSection from "@/components/FooterSection.vue";
 import HeroBackground from "@/components/layout/HeroBackground.vue";
 import {useNavigationStore} from "@/stores/navigation.ts";
-import TeamMemberCard from "@/components/TeamMemberCard.vue";
-import TeamSection from "@/components/TeamSection.vue";
+import TeamMemberCard from "@/components/team/TeamMemberCard.vue";
+import TeamSection from "@/components/team/TeamSection.vue";
 
 export default defineComponent({
   name: "TeamPage",

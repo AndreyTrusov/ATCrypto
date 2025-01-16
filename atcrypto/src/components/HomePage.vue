@@ -49,14 +49,11 @@
               :service="service"
           />
         </div>
-        <!--        <div class="btn-box">-->
-        <!--          <a href="">-->
-        <!--            View All-->
-        <!--          </a>-->
-        <!--        </div>-->
       </div>
     </div>
   </section>
+
+  <WhyChooseUs/>
 
   <div>
     <InfoSection/>
@@ -74,6 +71,7 @@ import Carousel from "@/components/slider/Carousel.vue";
 import ServiceCard from "@/components/service/ServiceCard.vue";
 import InfoSection from "@/components/InfoSection.vue";
 import FooterSection from "@/components/FooterSection.vue";
+import WhyChooseUs from "@/components/whyUs/WhyChooseUs.vue";
 
 export default {
   name: 'HeroSection',
@@ -86,6 +84,7 @@ export default {
     };
   },
   components: {
+    WhyChooseUs,
     FooterSection,
     InfoSection,
     ServiceCard,

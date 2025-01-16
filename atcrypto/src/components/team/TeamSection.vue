@@ -1,6 +1,6 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
-import TeamMemberCard from "@/components/TeamMemberCard.vue";
+import TeamMemberCard from "@/components/team/TeamMemberCard.vue";
 import {useTeamStore} from "@/stores/team.ts";
 
 export default defineComponent({
