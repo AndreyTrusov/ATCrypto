@@ -26,27 +26,32 @@
       </div>
     </header>
 
+    <section class="slider_section">
+      <Carousel/>
+    </section>
   </div>
 </template>
 
 <script>
 import HeroBackground from "@/components/layout/HeroBackground.vue";
 import {useNavigationStore} from "@/stores/navigation.ts";
+import Carousel from "@/components/slider/Carousel.vue";
 
 export default {
   name: 'HeroSection',
-  components: {HeroBackground},
-  data() {
-    return {
-      isNavOpen: false,
-    }
-  },
   setup() {
     const navigationStore = useNavigationStore();
     return {
       navigationStore
     };
   },
+  components: {
+    Carousel,
+    HeroBackground
+  },
+  data() {
+    return {}
+  }
 }
 </script>
 

@@ -7,8 +7,11 @@ export default defineComponent({
 </script>
 
 <template>
-
+  <div class="team-page">
+    <h1>Our Team</h1>
+  </div>
 </template>
+
 
 <style scoped>
 
