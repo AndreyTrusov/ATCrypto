@@ -2,10 +2,12 @@
 import {defineComponent} from 'vue'
 import {useNavigationStore} from "@/stores/navigation.ts";
 import HeroBackground from "@/components/layout/HeroBackground.vue";
+import InfoSection from "@/components/InfoSection.vue";
+import FooterSection from "@/components/FooterSection.vue";
 
 export default defineComponent({
   name: "AboutPage",
-  components: {HeroBackground},
+  components: {FooterSection, InfoSection, HeroBackground},
   data() {
     return {
       isNavOpen: false,
@@ -47,6 +49,12 @@ export default defineComponent({
         </nav>
       </div>
     </header>
+  </div>
+
+
+  <div>
+    <InfoSection/>
+    <FooterSection/>
   </div>
 </template>
 

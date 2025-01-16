@@ -30,22 +30,65 @@
       <Carousel/>
     </section>
   </div>
+
+  <section class="service_section layout_padding">
+    <div class="service_container">
+      <div class="container">
+        <div class="heading_container heading_center">
+          <h2>
+            Our <span>Services</span>
+          </h2>
+          <p>
+            There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration
+          </p>
+        </div>
+        <div class="row">
+          <ServiceCard
+              v-for="service in services"
+              :key="service.id"
+              :service="service"
+          />
+        </div>
+        <!--        <div class="btn-box">-->
+        <!--          <a href="">-->
+        <!--            View All-->
+        <!--          </a>-->
+        <!--        </div>-->
+      </div>
+    </div>
+  </section>
+
+  <div>
+    <InfoSection/>
+    <FooterSection/>
+  </div>
+
+
 </template>
 
 <script>
 import HeroBackground from "@/components/layout/HeroBackground.vue";
 import {useNavigationStore} from "@/stores/navigation.ts";
+import {useServiceStore} from "@/stores/services.ts";
 import Carousel from "@/components/slider/Carousel.vue";
+import ServiceCard from "@/components/service/ServiceCard.vue";
+import InfoSection from "@/components/InfoSection.vue";
+import FooterSection from "@/components/FooterSection.vue";
 
 export default {
   name: 'HeroSection',
   setup() {
     const navigationStore = useNavigationStore();
+    const serviceStore = useServiceStore()
     return {
-      navigationStore
+      navigationStore,
+      services: serviceStore.services,
     };
   },
   components: {
+    FooterSection,
+    InfoSection,
+    ServiceCard,
     Carousel,
     HeroBackground
   },
