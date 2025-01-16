@@ -4,10 +4,11 @@ import {useNavigationStore} from "@/stores/navigation.ts";
 import HeroBackground from "@/components/layout/HeroBackground.vue";
 import InfoSection from "@/components/InfoSection.vue";
 import FooterSection from "@/components/FooterSection.vue";
+import HeaderSection from "@/components/HeaderSection.vue";
 
 export default defineComponent({
   name: "AboutPage",
-  components: {FooterSection, InfoSection, HeroBackground},
+  components: {HeaderSection, FooterSection, InfoSection, HeroBackground},
   data() {
     return {
       isNavOpen: false,
@@ -27,29 +28,7 @@ export default defineComponent({
     <div class="hero_area">
       <HeroBackground/>
 
-      <header class="header_section">
-        <div class="container-fluid">
-          <nav class="navbar navbar-expand-lg custom_nav-container">
-            <router-link class="navbar-brand" to="/">
-              <span>ATCrypto</span>
-            </router-link>
-
-            <button class="navbar-toggler" @click="navigationStore.toggleNav()">
-              <span></span>
-            </button>
-
-            <div class="navbar-collapse" :class="{ 'collapse': !navigationStore.isNavOpen }">
-              <ul class="navbar-nav">
-                <li v-for="link in navigationStore.navLinks" :key="link.name" class="nav-item">
-                  <router-link class="nav-link" :to="link.route" active-class="active">
-                    {{ link.name }}
-                  </router-link>
-                </li>
-              </ul>
-            </div>
-          </nav>
-        </div>
-      </header>
+      <HeaderSection />
     </div>
 
     <section class="about_section layout_padding">

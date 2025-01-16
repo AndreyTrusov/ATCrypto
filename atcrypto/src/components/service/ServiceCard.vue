@@ -21,7 +21,6 @@ export default defineComponent({
       <div class="detail-box">
         <h5>{{ service.title }}</h5>
         <p>{{ service.description }}</p>
-<!--        <a :href="service.link">Read More</a>-->
       </div>
     </div>
   </div>
