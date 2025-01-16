@@ -68,7 +68,9 @@ To run this project locally, follow these steps:
 
     npm install
 
-    npm run serve ```
+    npm run serve 
+```
 
+Open the app in your browser:
 
 http://localhost:8080/
