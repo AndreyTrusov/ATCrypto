@@ -2,6 +2,7 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
 import {useNavigationStore} from "@/stores/navigation.ts";
+import {useAuthStore} from "@/stores/auth.ts";
 
 export default defineComponent({
   name: "InfoColumn",
@@ -12,14 +13,28 @@ export default defineComponent({
     }
   },
   setup() {
-    const navigationStore = useNavigationStore();
+    const navigationStore = useNavigationStore()
+    const authStore = useAuthStore()
+
+    const handleAction = (action: string) => {
+      if (action === 'logout') {
+        authStore.logout()
+      }
+    }
+
     return {
       navigationStore,
-    };
+      handleAction
+    }
   },
   computed: {
     columnClass() {
       return 'col-md-6 col-lg-3 info_col ' + (this.type === 'links' ? 'mx-auto' : '');
+    },
+
+    navLinks() {
+      const navigationStore = useNavigationStore();
+      return navigationStore.dynamicNavLinks;
     }
   }
 })
@@ -53,10 +68,21 @@ export default defineComponent({
         <h4>Links</h4>
         <div class="info_links">
           <ul>
-            <li v-for="link in navigationStore.navLinks" :key="link.name">
-              <router-link :to="link.route" active-class="active">
+            <li v-for="link in navigationStore.dynamicNavLinks" :key="link.name">
+              <router-link
+                  v-if="!link.type"
+                  :to="link.route || { name: link.name }"
+                  active-class="active"
+              >
                 {{ link.name }}
               </router-link>
+
+              <button
+                  v-else-if="link.type === 'button'"
+                  @click="handleAction(link.action)"
+              >
+                {{ link.name }}
+              </button>
             </li>
           </ul>
         </div>

@@ -1,12 +1,86 @@
-<script lang="ts">
+<script>
+import {useCryptoStore} from '@/stores/cryptoStore';
+import HeaderSection from "@/components/HeaderSection.vue";
+import HeroBackground from "@/components/layout/HeroBackground.vue";
+import FooterSection from "@/components/FooterSection.vue";
 
-import {defineComponent} from "vue";
-export default defineComponent({
-})
+export default {
+  components: {
+    FooterSection,
+    HeroBackground,
+    HeaderSection
+  },
+  data() {
+    return {
+      cryptos: [],
+      search: '',
+      headers: [
+        {title: 'Cryptocurrency Name', key: 'crypto_name'},
+        {title: 'Capitalization', key: 'market_capitalization'},
+        {title: 'Price (USD)', key: 'current_price'},
+        {title: '24h Change', key: 'volume_24h'},
+      ],
+    };
+  },
+  created() {
+    this.fetchCryptos();
+  },
+  methods: {
+    async fetchCryptos() {
+      try {
+        const cryptoStore = useCryptoStore();
+        await cryptoStore.fetchCryptos();
+        this.cryptos = cryptoStore.getCryptos;
+      } catch (error) {
+        console.error('Error fetching cryptos:', error);
+      }
+    },
+  },
+};
 </script>
 
 <template>
+  <div class="sub_page" style="background-color: lightgray">
+    <div class="hero_area" style="margin-bottom: 100px;">
+      <HeroBackground/>
 
+      <HeaderSection/>
+    </div>
+
+    <div style="background-color: white; margin: 80px; border-radius: 5px; box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);">
+      <v-card title="Cryptocurrency Name" flat>
+        <template v-slot:text>
+          <v-text-field
+              v-model="search"
+              label="Search"
+              prepend-inner-icon="mdi-magnify"
+              variant="outlined"
+              hide-details
+              single-line
+          ></v-text-field>
+        </template>
+      </v-card>
+
+      <v-container>
+        <v-data-table-virtual
+            v-if="cryptos.length"
+            :headers="headers"
+            :items="cryptos"
+            :search="search"
+            loading-text="Loading... Please wait"
+            hide-default-footer
+        >
+        </v-data-table-virtual>
+      </v-container>
+
+    </div>
+
+
+    <div>
+      <FooterSection/>
+    </div>
+
+  </div>
 </template>
 
 <style scoped>

@@ -88,6 +88,38 @@ app.get('/api/feedbacks', async (req, res) => {
     }
 });
 
+app.get('/api/cryptos', async (req, res) => {
+
+    try {
+        const [rows] = await pool.execute('SELECT * FROM cryptos');
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching cryptos', error });
+    }
+});
+
+app.post('/api/cryptos/update-price', async (req, res) => {
+    try {
+        const { id, price } = req.body;
+        await pool.execute(
+            'UPDATE cryptos SET current_price = ? WHERE id = ?',
+            [price, id]
+        );
+        res.json({ message: 'Price updated successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating price', error });
+    }
+});
+
+app.get('/api/cryptos/price', async (req, res) => {
+    try {
+        const [rows] = await pool.execute('SELECT id, current_price FROM cryptos');
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching cryptos', error });
+    }
+});
+
 app.post('/api/feedbacks', async (req, res) => {
     try {
         const { user_id, message } = req.body;
