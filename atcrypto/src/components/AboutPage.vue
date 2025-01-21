@@ -1,25 +1,22 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
-import {useNavigationStore} from "@/stores/navigation.ts";
 import HeroBackground from "@/components/layout/HeroBackground.vue";
 import InfoSection from "@/components/InfoSection.vue";
 import FooterSection from "@/components/FooterSection.vue";
 import HeaderSection from "@/components/HeaderSection.vue";
 
+interface AboutPageData {
+  isNavOpen: boolean;
+}
+
 export default defineComponent({
   name: "AboutPage",
   components: {HeaderSection, FooterSection, InfoSection, HeroBackground},
-  data() {
+  data(): AboutPageData{
     return {
       isNavOpen: false,
     }
-  },
-  setup() {
-    const navigationStore = useNavigationStore();
-    return {
-      navigationStore
-    };
-  },
+  }
 })
 </script>
 

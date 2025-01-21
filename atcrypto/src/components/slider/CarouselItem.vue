@@ -25,9 +25,6 @@ export default {
               <span v-html="item.title.split('<br>').join('<br>')"></span>
             </h1>
             <p>{{ item.description }}</p>
-<!--            <div class="btn-box">-->
-<!--              <a :href="item.buttonLink" class="btn1">{{ item.buttonLabel }}</a>-->
-<!--            </div>-->
           </div>
         </div>
         <div class="col-md-6">

@@ -1,14 +1,30 @@
 <script lang="ts">
-import {defineComponent} from 'vue'
+import {defineComponent, onMounted} from 'vue'
 import CustomerTestimonial from "@/components/feedback/CustomerTestimonial.vue";
-import {useCustomerStore} from "@/stores/customerStore.ts";
+import {useFeedbackStore} from "@/stores/feedback.ts";
+import {storeToRefs} from "pinia";
 
 export default defineComponent({
   name: "CustomerSection",
-  components: {CustomerTestimonial},
-  setup() {
-    const customerStore = useCustomerStore();
-    return { customerStore };
+  components: { CustomerTestimonial },
+
+  async setup() {
+    const feedbackStore = useFeedbackStore();
+    const { feedbacks } = storeToRefs(feedbackStore);
+
+    console.log(feedbacks.value);
+
+    onMounted(async () => {
+      try {
+        await feedbackStore.fetchFeedbacks();
+      } catch (error) {
+        console.error("Failed to fetch feedbacks:", error);
+      }
+    });
+
+    return {
+      feedbacks,
+    };
   },
 })
 </script>
@@ -21,19 +37,24 @@ export default defineComponent({
           What says our <span>Customers</span>
         </h2>
       </div>
-      <div class="carousel-wrap">
-          <CustomerTestimonial
-              v-for="(testimonial, index) in customerStore.testimonials"
-              :key="index"
-              :name="testimonial.name"
-              :position="testimonial.position"
-              :image="testimonial.image"
-              :quote="testimonial.quote"
-          />
+
+      <div v-if="feedbacks.length > 0" class="carousel-wrap">
+        <CustomerTestimonial
+            v-for="feedback in feedbacks"
+            :key="feedback.id"
+            :name="feedback.name"
+            :position="feedback.position"
+            :image="feedback.image"
+            :quote="feedback.quote"
+        />
+      </div>
+      <div v-else>
+        <p>No feedbacks available at the moment.</p>
       </div>
     </div>
   </section>
 </template>
+
 
 <style scoped>
 

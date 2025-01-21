@@ -1,21 +1,3 @@
-<!--<script>-->
-<!--import { useCarouselStore } from '@/stores/carousel';-->
-<!--import CarouselItem from './CarouselItem.vue';-->
-
-<!--export default {-->
-<!--  name: 'Carousel',-->
-<!--  components: {-->
-<!--    CarouselItem-->
-<!--  },-->
-<!--  setup() {-->
-<!--    const carouselStore = useCarouselStore();-->
-<!--    return {-->
-<!--      carouselItems: carouselStore.carouselItems-->
-<!--    };-->
-<!--  }-->
-<!--};-->
-<!--</script>-->
-
 <script>
 import { useCarouselStore } from '@/stores/carousel';
 import CarouselItem from './CarouselItem.vue';
