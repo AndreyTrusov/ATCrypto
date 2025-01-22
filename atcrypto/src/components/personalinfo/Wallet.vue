@@ -6,10 +6,11 @@ import Dashboard from "@/components/personalinfo/Dashboard.vue";
 import BuyCryptoForm from "@/components/personalinfo/BuyCryptoForm.vue";
 import FooterSection from "@/components/FooterSection.vue";
 import TransactionWallet from "@/components/personalinfo/TransactionWallet.vue";
+import SellCryptoForm from "@/components/personalinfo/SellCryptoForm.vue";
 
 export default {
   name: 'WalletPage',
-  components: {TransactionWallet, FooterSection, BuyCryptoForm, Dashboard, HeroBackground, HeaderSection},
+  components: {SellCryptoForm, TransactionWallet, FooterSection, BuyCryptoForm, Dashboard, HeroBackground, HeaderSection},
   data() {
     return {
       money: 0,
@@ -54,6 +55,7 @@ export default {
 
     async refreshBalance() {
       await this.loadWalletData();
+      await this.$refs.transactionWallet.loadTransactions();
     }
   }
 };
@@ -67,8 +69,8 @@ export default {
     </div>
     <v-container class="fill-height">
       <v-row justify="center" align="center">
-        <v-col cols="12" sm="8" md="6">
-          <v-card>
+        <v-col cols="11" sm="11" md="11">
+          <v-card style="border-radius: 5px; box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);">
             <v-card-title class="text-center text-h5 py-4">
               Your Wallet Balance
             </v-card-title>
@@ -115,7 +117,6 @@ export default {
                 </v-btn>
               </v-form>
             </v-card-text>
-
             <v-card-actions class="justify-center pb-4">
               <v-btn
                   color="primary"
@@ -129,11 +130,13 @@ export default {
           </v-card>
         </v-col>
       </v-row>
-      <BuyCryptoForm/>
+      <BuyCryptoForm @buy-completed="refreshBalance" />
     </v-container>
 
 
-    <TransactionWallet/>
+    <TransactionWallet ref="transactionWallet"/>
+
+    <SellCryptoForm @sell-completed="refreshBalance"/>
 
     <div>
       <FooterSection/>

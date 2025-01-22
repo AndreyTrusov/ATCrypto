@@ -3,14 +3,6 @@ import { useCryptoStore } from '@/stores/cryptoStore';
 import {useWalletStore} from "@/stores/walletStore.ts";
 import {type Transaction, useTransactionStore} from "@/stores/transactionStore.ts";
 
-interface Transaction {
-  id: number;
-  crypto_id: number;
-  crypto_name: string;
-  amount: number;
-  price_at_purchase: number;
-}
-
 interface ComponentData {
   selectedTransaction: Transaction | null;
   amount: string;
@@ -20,7 +12,6 @@ interface ComponentData {
   transactions: Transaction[];
   currentPrices: Record<number, number>;
 }
-
 
 export default {
   name: 'SellCryptoForm',
@@ -154,12 +145,6 @@ export default {
           :loading="loading"
           :disabled="loading"
       >
-        <template v-slot:item="{ item }">
-          <v-list-item-title>
-            {{ item.crypto_name }} - Amount: {{ item.amount }}
-            (Bought at: ${{ item.price_at_purchase }})
-          </v-list-item-title>
-        </template>
       </v-select>
 
       <v-text-field

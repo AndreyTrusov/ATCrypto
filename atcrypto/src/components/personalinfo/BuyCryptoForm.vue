@@ -1,6 +1,6 @@
 <script lang="ts">
-import { useWalletStore } from '@/stores/walletStore';
-import { useCryptoStore } from '@/stores/cryptoStore';
+import {useWalletStore} from '@/stores/walletStore';
+import {useCryptoStore} from '@/stores/cryptoStore';
 
 interface Crypto {
   id: number;
@@ -13,7 +13,6 @@ interface Crypto {
 interface CryptoState {
   cryptos: Crypto[];
 }
-
 
 export default {
   name: 'BuyCryptoForm',
@@ -82,6 +81,7 @@ export default {
         this.amount = '';
         this.selectedCrypto = null;
         await this.loadData();
+        this.$emit('buy-completed');
       } catch (error) {
         this.error = 'Failed to buy crypto';
       } finally {
@@ -93,63 +93,61 @@ export default {
 </script>
 
 <template>
-  <v-container class="fill-height">
-    <v-row justify="center" align="center">
-      <v-col cols="12" sm="8" md="6">
-        <v-card>
-          <v-card-title class="text-center text-h5 py-4">
-            Buy Cryptocurrency
-          </v-card-title>
+  <v-row justify="center" align="center">
+    <v-col cols="11" sm="11" md="11">
+      <v-card style="border-radius: 5px; box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);">
+        <v-card-title class="text-center text-h5 py-4">
+          Buy Cryptocurrency
+        </v-card-title>
 
-          <v-card-text>
-            <v-alert
-                v-if="error"
-                type="error"
-                class="mb-4"
-            >
-              {{ error }}
-            </v-alert>
+        <v-card-text>
+          <v-alert
+              v-if="error"
+              type="error"
+              class="mb-4"
+          >
+            {{ error }}
+          </v-alert>
 
-            <v-select
-                v-model="selectedCrypto"
-                :items="cryptoList"
-                item-title="crypto_name"
-                item-value="id"
-                label="Select Cryptocurrency"
-                return-object
-                class="mb-4"
-            ></v-select>
+          <v-select
+              v-model="selectedCrypto"
+              :items="cryptoList"
+              item-title="crypto_name"
+              item-value="id"
+              label="Select Cryptocurrency"
+              return-object
+              class="mb-4"
+          ></v-select>
 
-            <v-text-field
-                v-model="amount"
-                type="number"
-                label="Amount to Buy"
-                :disabled="!selectedCrypto"
-                :max="maxAmount"
-                :rules="[v => !v || v <= maxAmount || 'Insufficient funds']"
-                class="mb-4"
-            ></v-text-field>
+          <v-text-field
+              v-model="amount"
+              type="number"
+              label="Amount to Buy"
+              :disabled="!selectedCrypto"
+              :max="maxAmount"
+              :rules="[v => !v || v <= maxAmount || 'Insufficient funds']"
+              class="mb-4"
+          ></v-text-field>
 
-            <div v-if="selectedCrypto" class="text-center text-h6 font-weight-bold mb-4">
-              Total Cost: ${{ totalCost.toFixed(2) }}
-            </div>
-          </v-card-text>
+          <div v-if="selectedCrypto" class="text-center text-h6 font-weight-bold mb-4">
+            Total Cost: ${{ totalCost.toFixed(2) }}
+          </div>
+        </v-card-text>
 
-          <v-card-actions class="justify-center pb-4">
-            <v-btn
-                block
-                color="primary"
-                :disabled="!canBuy"
-                :loading="loading"
-                @click="handleBuy"
-            >
-              Buy Crypto
-            </v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+        <v-card-actions class="justify-center pb-4">
+          <v-btn
+              block
+              color="primary"
+              :disabled="!canBuy"
+              :loading="loading"
+              @click="handleBuy"
+          >
+            Buy Crypto
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-col>
+  </v-row>
 
 </template>
 

@@ -1,20 +1,16 @@
 <script lang="ts">
 import {defineComponent} from 'vue'
-import axios from 'axios';
-
-interface Transaction {
-  id: number;
-  crypto_id: number;
-  amount: number;
-  price_at_purchase: number;
-  created_at: string;
-  crypto_name: string;
-}
+import {type Transaction, useTransactionStore} from "@/stores/transactionStore.ts";
 
 const API_URL = 'http://localhost:3000'
 
 export default defineComponent({
   name: "Transaction",
+  setup() {
+    const store = useTransactionStore();
+    return { store };
+  },
+
   data() {
     return {
       transactions: [] as Transaction[],
@@ -30,25 +26,21 @@ export default defineComponent({
   methods: {
     async loadTransactions() {
       try {
-        this.loading = true;
-        const token = localStorage.getItem('token');
-        const response = await axios.get(`${API_URL}/api/transactions/crypto`, {
-          headers: { Authorization: `${token}` }
-        });
-        this.transactions = response.data;
+        await this.store.fetchTransactions();
+        this.transactions = this.store.transactions;
+        this.loading = this.store.loading;
+        this.error = this.store.error;
       } catch (error) {
-        this.error = 'Failed to load transactions';
-      } finally {
-        this.loading = false;
+        console.error('Error loading transactions:', error);
       }
     }
   }
-})
+});
 </script>
 
 <template>
 
-  <v-card max-width="840" class="mx-auto" style="margin-bottom: 50px">
+  <v-card max-width="840" class="mx-auto" style="border-radius: 5px; box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);">
     <v-card-title>Your Crypto Transactions</v-card-title>
 
     <v-card-text>
@@ -70,7 +62,7 @@ export default defineComponent({
           </v-list-item-title>
           <v-list-item-subtitle>
             Amount: {{ tx.amount }}
-            Price: ${{ tx.price_at_purchase }}
+            Bought at: ${{ tx.price_at_purchase }}
             Date: {{ new Date(tx.created_at).toLocaleDateString() }}
           </v-list-item-subtitle>
         </v-list-item>

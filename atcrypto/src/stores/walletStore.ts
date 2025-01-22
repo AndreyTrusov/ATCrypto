@@ -45,6 +45,22 @@ export const useWalletStore = defineStore('wallet', {
             }
         },
 
+        async sellCrypto({ transactionId, amount, currentPrice }: { transactionId: number; amount: number; currentPrice: number }) {
+            try {
+                const token = localStorage.getItem('token');
+                await axios.post(`${this.config.apiUrl}/transactions/sell`, {
+                    transactionId,
+                    amount,
+                    currentPrice
+                }, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+            } catch (error) {
+                console.error('Error selling crypto:', error);
+                throw error;
+            }
+        },
+
         async fetchUserMoney() {
             this.loading = true;
             this.error = null;
