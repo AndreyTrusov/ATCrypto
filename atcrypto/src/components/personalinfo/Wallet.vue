@@ -1,63 +1,36 @@
-<script>
-import {useWalletStore} from '@/stores/walletStore';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import { useCryptoWalletStore } from '@/stores/cryptoWalletStore';
 import HeaderSection from "@/components/HeaderSection.vue";
 import HeroBackground from "@/components/layout/HeroBackground.vue";
-import Dashboard from "@/components/personalinfo/Dashboard.vue";
 import BuyCryptoForm from "@/components/personalinfo/BuyCryptoForm.vue";
 import FooterSection from "@/components/FooterSection.vue";
 import TransactionWallet from "@/components/personalinfo/TransactionWallet.vue";
 import SellCryptoForm from "@/components/personalinfo/SellCryptoForm.vue";
 
-export default {
-  name: 'WalletPage',
-  components: {SellCryptoForm, TransactionWallet, FooterSection, BuyCryptoForm, Dashboard, HeroBackground, HeaderSection},
-  data() {
-    return {
-      money: 0,
-      loading: false,
-      error: null,
-      amountToAdd: '',
-    };
-  },
+const store = useCryptoWalletStore();
+const amountToAdd = ref('');
 
-  async created() {
-    await this.loadWalletData();
-  },
+onMounted(async () => {
+  await store.fetchAllData();
+});
 
-  methods: {
-    async loadWalletData() {
-      try {
-        const walletStore = useWalletStore();
-        await walletStore.fetchUserMoney();
-        this.money = walletStore.userMoney;
-        this.loading = walletStore.loading;
-        this.error = walletStore.error;
-      } catch (error) {
-        console.error('Error loading wallet:', error);
-      }
-    },
-
-    async handleAddMoney() {
-      if (!this.amountToAdd || isNaN(this.amountToAdd)) {
-        this.error = 'Please enter a valid amount';
-        return;
-      }
-
-      try {
-        const walletStore = useWalletStore();
-        await walletStore.addMoney(Number(this.amountToAdd));
-        this.amountToAdd = '';
-        await this.loadWalletData();
-      } catch (error) {
-        console.error('Error adding money:', error);
-      }
-    },
-
-    async refreshBalance() {
-      await this.loadWalletData();
-      await this.$refs.transactionWallet.loadTransactions();
-    }
+const handleAddMoney = async () => {
+  if (!amountToAdd.value || isNaN(Number(amountToAdd.value))) {
+    store.error = 'Please enter a valid amount';
+    return;
   }
+
+  try {
+    await store.addMoney(Number(amountToAdd.value));
+    amountToAdd.value = '';
+  } catch (error) {
+    console.error('Error adding money:', error);
+  }
+};
+
+const refreshData = async () => {
+  await store.fetchAllData();
 };
 </script>
 
@@ -77,22 +50,22 @@ export default {
 
             <v-card-text>
               <v-alert
-                  v-if="error"
+                  v-if="store.error"
                   type="error"
                   class="mb-4"
               >
-                {{ error }}
+                {{ store.error }}
               </v-alert>
 
               <div class="text-center">
-                <div v-if="loading" class="my-4">
+                <div v-if="store.loading" class="my-4">
                   <v-progress-circular
                       indeterminate
                       color="primary"
                   ></v-progress-circular>
                 </div>
                 <div v-else class="text-h3 font-weight-bold my-4">
-                  ${{ money.toFixed(2) }}
+                  ${{ store.userMoney.toFixed(2) }}
                 </div>
               </div>
             </v-card-text>
@@ -111,7 +84,7 @@ export default {
                     color="success"
                     block
                     type="submit"
-                    :loading="loading"
+                    :loading="store.loading"
                 >
                   Add Money
                 </v-btn>
@@ -120,8 +93,8 @@ export default {
             <v-card-actions class="justify-center pb-4">
               <v-btn
                   color="primary"
-                  @click="refreshBalance"
-                  :loading="loading"
+                  @click="refreshData"
+                  :loading="store.loading"
               >
                 <v-icon left>mdi-refresh</v-icon>
                 Refresh Balance
@@ -130,13 +103,13 @@ export default {
           </v-card>
         </v-col>
       </v-row>
-      <BuyCryptoForm @buy-completed="refreshBalance" />
+      <BuyCryptoForm @buy-completed="refreshData" />
     </v-container>
 
 
     <TransactionWallet ref="transactionWallet"/>
 
-    <SellCryptoForm @sell-completed="refreshBalance"/>
+    <SellCryptoForm @sell-completed="refreshData"/>
 
     <div>
       <FooterSection/>

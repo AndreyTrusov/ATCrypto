@@ -1,40 +1,11 @@
-<script lang="ts">
-import {defineComponent} from 'vue'
-import {type Transaction, useTransactionStore} from "@/stores/transactionStore.ts";
+<script setup lang="ts">
+import { onMounted } from 'vue';
+import { useCryptoWalletStore } from '@/stores/cryptoWalletStore';
 
-const API_URL = 'http://localhost:3000'
+const store = useCryptoWalletStore();
 
-export default defineComponent({
-  name: "Transaction",
-  setup() {
-    const store = useTransactionStore();
-    return { store };
-  },
-
-  data() {
-    return {
-      transactions: [] as Transaction[],
-      loading: false,
-      error: null as string | null
-    }
-  },
-
-  async created() {
-    await this.loadTransactions();
-  },
-
-  methods: {
-    async loadTransactions() {
-      try {
-        await this.store.fetchTransactions();
-        this.transactions = this.store.transactions;
-        this.loading = this.store.loading;
-        this.error = this.store.error;
-      } catch (error) {
-        console.error('Error loading transactions:', error);
-      }
-    }
-  }
+onMounted(async () => {
+  await store.fetchTransactions();
 });
 </script>
 
@@ -44,17 +15,17 @@ export default defineComponent({
     <v-card-title>Your Crypto Transactions</v-card-title>
 
     <v-card-text>
-      <v-alert v-if="error" type="error" dense>{{ error }}</v-alert>
+      <v-alert v-if="store.error" type="error" dense>{{ store.error }}</v-alert>
 
       <v-progress-circular
-          v-if="loading"
+          v-if="store.loading"
           indeterminate
           color="primary"
       />
 
       <v-list v-else>
         <v-list-item
-            v-for="tx in transactions"
+            v-for="tx in store.transactions"
             :key="tx.id"
         >
           <v-list-item-title>

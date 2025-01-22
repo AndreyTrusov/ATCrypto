@@ -1,6 +1,6 @@
-<script lang="ts">
-import {useWalletStore} from '@/stores/walletStore';
-import {useCryptoStore} from '@/stores/cryptoStore';
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import { useCryptoWalletStore } from '@/stores/cryptoWalletStore';
 
 interface Crypto {
   id: number;
@@ -10,84 +10,42 @@ interface Crypto {
   volume_24h: number;
 }
 
-interface CryptoState {
-  cryptos: Crypto[];
-}
+const emit = defineEmits<{
+  (e: 'buy-completed'): void
+}>();
 
-export default {
-  name: 'BuyCryptoForm',
-  data() {
-    return {
-      selectedCrypto: null as Crypto | null,
-      amount: '' as string | number,
-      loading: false,
-      error: null as string | null,
-      walletBalance: 0,
-      cryptoList: [] as Crypto[],
-    };
-  },
+const store = useCryptoWalletStore();
+const selectedCrypto = ref<Crypto | null>(null);
+const amount = ref('');
 
-  computed: {
-    maxAmount() {
-      if (!this.selectedCrypto) return 0;
-      return this.walletBalance / this.selectedCrypto.current_price;
-    },
-    totalCost(): number {
-      if (!this.selectedCrypto || !this.amount) return 0;
-      return Number(this.amount) * this.selectedCrypto.current_price;
-    },
-    canBuy(): boolean {
-      return this.totalCost <= this.walletBalance && Number(this.amount) > 0;
-    }
-  },
+const maxAmount = computed(() => {
+  if (!selectedCrypto.value) return 0;
+  return store.userMoney / selectedCrypto.value.current_price;
+});
 
-  async created() {
-    await this.loadData();
-  },
+const totalCost = computed(() => {
+  if (!selectedCrypto.value || !amount.value) return 0;
+  return Number(amount.value) * selectedCrypto.value.current_price;
+});
 
-  methods: {
-    async loadData() {
-      try {
-        this.loading = true;
-        const walletStore = useWalletStore();
-        const cryptoStore = useCryptoStore();
+const canBuy = computed(() => {
+  return totalCost.value <= store.userMoney && Number(amount.value) > 0;
+});
 
-        await Promise.all([
-          walletStore.fetchUserMoney(),
-          cryptoStore.fetchCryptos()
-        ]);
+const handleBuy = async () => {
+  if (!canBuy.value || !selectedCrypto.value) return;
 
-        this.walletBalance = walletStore.userMoney;
-        this.cryptoList = cryptoStore.getCryptos as Crypto[];
-      } catch (error) {
-        this.error = 'Failed to load data';
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async handleBuy() {
-      if (!this.canBuy || !this.selectedCrypto) return;
-
-      try {
-        this.loading = true;
-        const walletStore = useWalletStore();
-        await walletStore.buyCrypto({
-          cryptoId: this.selectedCrypto.id,
-          amount: Number(this.amount),
-          totalCost: this.totalCost
-        });
-
-        this.amount = '';
-        this.selectedCrypto = null;
-        await this.loadData();
-        this.$emit('buy-completed');
-      } catch (error) {
-        this.error = 'Failed to buy crypto';
-      } finally {
-        this.loading = false;
-      }
-    }
+  try {
+    await store.buyCrypto({
+      cryptoId: selectedCrypto.value.id,
+      amount: Number(amount.value),
+      totalCost: totalCost.value
+    });
+    amount.value = '';
+    selectedCrypto.value = null;
+    emit('buy-completed');
+  } catch (error) {
+    console.error('Error buying crypto:', error);
   }
 };
 </script>
@@ -102,16 +60,16 @@ export default {
 
         <v-card-text>
           <v-alert
-              v-if="error"
+              v-if="store.error"
               type="error"
               class="mb-4"
           >
-            {{ error }}
+            {{ store.error }}
           </v-alert>
 
           <v-select
               v-model="selectedCrypto"
-              :items="cryptoList"
+              :items="store.cryptos"
               item-title="crypto_name"
               item-value="id"
               label="Select Cryptocurrency"
@@ -139,7 +97,7 @@ export default {
               block
               color="primary"
               :disabled="!canBuy"
-              :loading="loading"
+              :loading="store.loading"
               @click="handleBuy"
           >
             Buy Crypto

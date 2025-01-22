@@ -1,115 +1,54 @@
-<script lang="ts">
-import { useCryptoStore } from '@/stores/cryptoStore';
-import {useWalletStore} from "@/stores/walletStore.ts";
-import {type Transaction, useTransactionStore} from "@/stores/transactionStore.ts";
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+import { useCryptoWalletStore } from '@/stores/cryptoWalletStore';
+import type { Transaction } from '@/stores/cryptoWalletStore';
 
-interface ComponentData {
-  selectedTransaction: Transaction | null;
-  amount: string;
-  loading: boolean;
-  error: string | null;
-  successMessage: string | null;
-  transactions: Transaction[];
-  currentPrices: Record<number, number>;
-}
+const emit = defineEmits<{
+  (e: 'sell-completed'): void
+}>();
 
-export default {
-  name: 'SellCryptoForm',
+const store = useCryptoWalletStore();
+const selectedTransaction = ref<Transaction | null>(null);
+const amount = ref('');
 
-  data(): ComponentData {
-    return {
-      selectedTransaction: null,
-      amount: '',
-      loading: false,
-      error: null,
-      successMessage: null,
-      transactions: [] as Transaction[],
-      currentPrices: {}
-    };
-  },
+const maxAmount = computed(() => {
+  if (!selectedTransaction.value) return 0;
+  return selectedTransaction.value.amount;
+});
 
-  computed: {
-    maxAmount(): number {
-      if (!this.selectedTransaction) return 0;
-      return this.selectedTransaction.amount;
-    },
+const profit = computed(() => {
+  if (!selectedTransaction.value || !amount.value) return 0;
+  const currentPrice = store.currentPrices[selectedTransaction.value.crypto_id] || 0;
+  const buyingPrice = selectedTransaction.value.price_at_purchase;
+  return (currentPrice - buyingPrice) * Number(amount.value);
+});
 
-    profit() {
-      if (!this.selectedTransaction || !this.amount) return 0;
-      const currentPrice = this.currentPrices[this.selectedTransaction.crypto_id] || 0;
-      const buyingPrice = this.selectedTransaction.price_at_purchase;
-      return (currentPrice - buyingPrice) * Number(this.amount);
-    },
+const totalValue = computed(() => {
+  if (!selectedTransaction.value || !amount.value) return 0;
+  const currentPrice = store.currentPrices[selectedTransaction.value.crypto_id] || 0;
+  return currentPrice * Number(amount.value);
+});
 
-    totalValue() {
-      if (!this.selectedTransaction || !this.amount) return 0;
-      const currentPrice = this.currentPrices[this.selectedTransaction.crypto_id] || 0;
-      return currentPrice * Number(this.amount);
-    },
+const canSell = computed(() => {
+  return selectedTransaction.value &&
+      Number(amount.value) > 0 &&
+      Number(amount.value) <= maxAmount.value;
+});
 
-    canSell() {
-      return this.selectedTransaction &&
-          Number(this.amount) > 0 &&
-          Number(this.amount) <= this.maxAmount;
-    }
-  },
+const handleSell = async () => {
+  if (!canSell.value || !selectedTransaction.value) return;
 
-  async created() {
-    await this.loadData();
-  },
-
-  methods: {
-    async loadData() {
-      try {
-        this.loading = true;
-        const transactionStore = useTransactionStore();
-        const cryptoStore = useCryptoStore();
-
-        await Promise.all([
-          transactionStore.fetchTransactions(),
-          cryptoStore.fetchCryptos()
-        ]);
-
-        this.transactions = transactionStore.transactions;
-        const cryptos = cryptoStore.getCryptos;
-
-        this.currentPrices = cryptos.reduce((acc: Record<number, number>, crypto) => {
-          if (crypto && crypto.id && crypto.current_price) {
-            acc[crypto.id] = crypto.current_price;
-          }
-          return acc;
-        }, {});
-      } catch (error) {
-        this.error = 'Failed to load transactions';
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async handleSell() {
-      if (!this.canSell || !this.selectedTransaction) return;
-
-      try {
-        this.loading = true;
-        const walletStore = useWalletStore();
-
-        await walletStore.sellCrypto({
-          transactionId: this.selectedTransaction.id,
-          amount: Number(this.amount),
-          currentPrice: this.currentPrices[this.selectedTransaction.crypto_id]
-        });
-
-        this.successMessage = `Successfully sold! Profit: $${this.profit.toFixed(2)}`;
-        this.amount = '';
-        this.selectedTransaction = null;
-        await this.loadData();
-        this.$emit('sell-completed');
-      } catch (error) {
-        this.error = 'Failed to sell crypto';
-      } finally {
-        this.loading = false;
-      }
-    }
+  try {
+    await store.sellCrypto({
+      transactionId: selectedTransaction.value.id,
+      amount: Number(amount.value),
+      currentPrice: store.currentPrices[selectedTransaction.value.crypto_id]
+    });
+    amount.value = '';
+    selectedTransaction.value = null;
+    emit('sell-completed');
+  } catch (error) {
+    console.error('Error selling crypto:', error);
   }
 };
 </script>
@@ -120,30 +59,22 @@ export default {
 
     <v-card-text>
       <v-alert
-          v-if="error"
+          v-if="store.error"
           type="error"
           class="mb-4"
       >
-        {{ error }}
-      </v-alert>
-
-      <v-alert
-          v-if="successMessage"
-          type="success"
-          class="mb-4"
-      >
-        {{ successMessage }}
+        {{ store.error }}
       </v-alert>
 
       <v-select
           v-model="selectedTransaction"
-          :items="transactions"
+          :items="store.transactions"
           item-title="crypto_name"
           item-value="id"
           label="Select crypto to sell"
           return-object
-          :loading="loading"
-          :disabled="loading"
+          :loading="store.loading"
+          :disabled="store.loading"
       >
       </v-select>
 
@@ -154,14 +85,14 @@ export default {
           :rules="[v => !v || v <= maxAmount || 'Exceeds available amount']"
           :hint="selectedTransaction ? `Available: ${maxAmount}` : ''"
           persistent-hint
-          :disabled="!selectedTransaction || loading"
+          :disabled="!selectedTransaction || store.loading"
       ></v-text-field>
 
       <v-list class="mt-4" v-if="selectedTransaction && amount">
         <v-list-item>
           <v-list-item-title>Current Price:</v-list-item-title>
           <v-list-item-subtitle class="text-right">
-            ${{ currentPrices[selectedTransaction.crypto_id] }}
+            ${{ store.currentPrices[selectedTransaction.crypto_id] }}
           </v-list-item-subtitle>
         </v-list-item>
         <v-list-item>
@@ -184,7 +115,7 @@ export default {
       <v-btn
           color="primary"
           :disabled="!canSell"
-          :loading="loading"
+          :loading="store.loading"
           @click="handleSell"
       >
         Sell
