@@ -14,12 +14,17 @@ export default {
   data() {
     return {
       cryptos: [],
+      previousPrices: new Map(),
       search: '',
       refreshInterval: null,
       headers: [
         {title: 'Cryptocurrency Name', key: 'crypto_name'},
         {title: 'Capitalization', key: 'market_capitalization'},
-        {title: 'Price (USD)', key: 'current_price'},
+        {
+          title: 'Price (USD)',
+          key: 'current_price',
+          align: 'end',
+        },
         {title: '24h Change', key: 'volume_24h'},
       ],
     };
@@ -36,7 +41,13 @@ export default {
       try {
         const cryptoStore = useCryptoStore();
         await cryptoStore.fetchCryptos();
-        this.cryptos = cryptoStore.getCryptos;
+        const newCryptos = cryptoStore.getCryptos;
+
+        this.cryptos.forEach(crypto => {
+          this.previousPrices.set(crypto.crypto_name, crypto.current_price);
+        });
+
+        this.cryptos = newCryptos;
       } catch (error) {
         console.error('Error fetching cryptos:', error);
       }
@@ -49,6 +60,12 @@ export default {
         clearInterval(this.refreshInterval);
       }
     },
+    getPriceColor(item) {
+      const previousPrice = this.previousPrices.get(item.crypto_name);
+      if (!previousPrice) return '';
+      return item.current_price > previousPrice ? 'text-green-500' :
+          item.current_price < previousPrice ? 'text-red-500' : '';
+    }
   },
 };
 </script>
@@ -86,15 +103,21 @@ export default {
       </v-card>
 
       <v-container>
-        <v-data-table-virtual
+        <v-data-table
             v-if="cryptos.length"
             :headers="headers"
             :items="cryptos"
+            :items-length="cryptos.length"
             :search="search"
             loading-text="Loading... Please wait"
             hide-default-footer
         >
-        </v-data-table-virtual>
+          <template v-slot:item.current_price="{ item }">
+            <span :class="getPriceColor(item)">
+              {{ item.current_price }}
+            </span>
+          </template>
+        </v-data-table>
       </v-container>
     </div>
 
@@ -105,5 +128,11 @@ export default {
 </template>
 
 <style scoped>
+.text-red-500 {
+  color: #ef4444;
+}
 
+.text-green-500 {
+  color: #22c55e;
+}
 </style>
