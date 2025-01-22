@@ -151,6 +151,54 @@ app.post('/api/users/money/add', async (req, res) => {
     }
 });
 
+app.post('/api/transactions/buy-crypto', async (req, res) => {
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        const token = req.headers.authorization?.split(' ')[0];
+        const userId = token?.split('-')[2];
+        const { cryptoId, amount, totalCost } = req.body;
+
+        await connection.execute(
+            'UPDATE users SET money = money - ? WHERE id = ? AND money >= ?',
+            [totalCost, userId, totalCost]
+        );
+
+        await connection.execute(
+            'INSERT INTO crypto_transactions (user_id, crypto_id, amount, price_at_purchase) VALUES (?, ?, ?, ?)',
+            [userId, cryptoId, amount, totalCost/amount]
+        );
+
+        await connection.commit();
+        res.json({ success: true });
+    } catch (error) {
+        await connection.rollback();
+        res.status(500).json({ message: 'Transaction failed', error });
+    } finally {
+        connection.release();
+    }
+});
+
+app.get('/api/transactions/crypto', async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[0];
+        const userId = token?.split('-')[2];
+
+        const [rows] = await pool.execute(`
+            SELECT ct.*, c.crypto_name 
+            FROM crypto_transactions ct
+            JOIN cryptos c ON ct.crypto_id = c.id
+            WHERE ct.user_id = ?
+            ORDER BY ct.created_at DESC
+        `, [userId]);
+
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ message: 'Failed to fetch transactions', error });
+    }
+});
+
 app.post('/api/feedbacks', async (req, res) => {
     try {
         const { user_id, message } = req.body;

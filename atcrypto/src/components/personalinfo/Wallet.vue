@@ -2,10 +2,14 @@
 import {useWalletStore} from '@/stores/walletStore';
 import HeaderSection from "@/components/HeaderSection.vue";
 import HeroBackground from "@/components/layout/HeroBackground.vue";
+import Dashboard from "@/components/personalinfo/Dashboard.vue";
+import BuyCryptoForm from "@/components/personalinfo/BuyCryptoForm.vue";
+import FooterSection from "@/components/FooterSection.vue";
+import TransactionWallet from "@/components/personalinfo/TransactionWallet.vue";
 
 export default {
   name: 'WalletPage',
-  components: {HeroBackground, HeaderSection},
+  components: {TransactionWallet, FooterSection, BuyCryptoForm, Dashboard, HeroBackground, HeaderSection},
   data() {
     return {
       money: 0,
@@ -125,7 +129,16 @@ export default {
           </v-card>
         </v-col>
       </v-row>
+      <BuyCryptoForm/>
     </v-container>
+
+
+    <TransactionWallet/>
+
+    <div>
+      <FooterSection/>
+    </div>
+
   </div>
 </template>
 

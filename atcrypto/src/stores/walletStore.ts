@@ -10,6 +10,12 @@ interface WalletState {
     error: string | null;
 }
 
+interface BuyCryptoParams {
+    cryptoId: number;
+    amount: number;
+    totalCost: number;
+}
+
 export const useWalletStore = defineStore('wallet', {
     state: (): WalletState => ({
         config: {
@@ -21,6 +27,24 @@ export const useWalletStore = defineStore('wallet', {
     }),
 
     actions: {
+        async buyCrypto(params: BuyCryptoParams) {
+            this.loading = true;
+            try {
+                const token = localStorage.getItem('token');
+                await axios.post(
+                    `${this.config.apiUrl}/transactions/buy-crypto`,
+                    params,
+                    { headers: { Authorization: `${token}` } }
+                );
+                await this.fetchUserMoney();
+            } catch (error) {
+                this.error = 'Failed to buy crypto';
+                throw error;
+            } finally {
+                this.loading = false;
+            }
+        },
+
         async fetchUserMoney() {
             this.loading = true;
             this.error = null;
