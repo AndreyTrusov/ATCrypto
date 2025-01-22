@@ -52,6 +52,7 @@ export default defineComponent({
 })
 </script>
 
+
 <template>
   <header class="header_section">
     <div class="container-fluid">

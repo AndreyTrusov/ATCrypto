@@ -1,168 +1,132 @@
-<script lang="ts">
-import {defineComponent, ref} from 'vue'
-import {useCryptoStore} from "@/stores/cryptoStore.ts";
+<script>
+import {useWalletStore} from '@/stores/walletStore';
+import HeaderSection from "@/components/HeaderSection.vue";
+import HeroBackground from "@/components/layout/HeroBackground.vue";
 
-export default defineComponent({
-  name: "Wallet",
-  setup(){
-    const cryptoStore = useCryptoStore();
-    const amount = ref(0);
-    const balance = ref(0);
-    const selectedCrypto = ref<string | null>(null);
-    const cryptos = ref<Crypto[]>([]);
-    const purchases = ref<Purchase[]>([]);
-
-    const fetchCryptos = async () => {
-      try {
-        await cryptoStore.fetchCryptos();
-        cryptos.value = cryptoStore.getCryptos;
-      } catch (error) {
-        console.error('Error fetching cryptos:', error);
-      }
-    };
-
-    const addMoney = () => {
-      if (amount.value <= 0) {
-        // Consider adding error message to user
-        return;
-      }
-      balance.value += amount.value;
-      console.log(`Added ${amount.value} to wallet. New balance: ${balance.value}`);
-      amount.value = 0; // Reset input
-    };
-
-    const buyCrypto = async () => {
-      try {
-        if (!selectedCrypto.value) {
-          return;
-        }
-
-        const crypto = cryptos.value.find(c => c.symbol === selectedCrypto.value);
-        if (!crypto) {
-          throw new Error('Selected cryptocurrency not found');
-        }
-
-        const cryptoPrice = Math.random() * 1000; // Replace with actual price fetch
-
-        // Check if user has enough balance
-        if (balance.value < cryptoPrice) {
-          throw new Error('Insufficient balance');
-        }
-
-        // Deduct from balance
-        balance.value -= cryptoPrice;
-
-        purchases.value.push({
-          cryptoName: crypto.name,
-          price: cryptoPrice.toFixed(2),
-        });
-
-        console.log(`Bought ${crypto.name} for $${cryptoPrice}`);
-        selectedCrypto.value = null; // Reset selection
-      } catch (error) {
-        console.error('Error buying crypto:', error);
-        // Consider adding error message to user
-      }
-    };
-
-    // Fetch cryptos on component mount
-    fetchCryptos();
-
+export default {
+  name: 'WalletPage',
+  components: {HeroBackground, HeaderSection},
+  data() {
     return {
-      amount,
-      balance,
-      selectedCrypto,
-      cryptos,
-      purchases,
-      addMoney,
-      buyCrypto
+      money: 0,
+      loading: false,
+      error: null,
+      amountToAdd: '',
     };
   },
-});
+
+  async created() {
+    await this.loadWalletData();
+  },
+
+  methods: {
+    async loadWalletData() {
+      try {
+        const walletStore = useWalletStore();
+        await walletStore.fetchUserMoney();
+        this.money = walletStore.userMoney;
+        this.loading = walletStore.loading;
+        this.error = walletStore.error;
+      } catch (error) {
+        console.error('Error loading wallet:', error);
+      }
+    },
+
+    async handleAddMoney() {
+      if (!this.amountToAdd || isNaN(this.amountToAdd)) {
+        this.error = 'Please enter a valid amount';
+        return;
+      }
+
+      try {
+        const walletStore = useWalletStore();
+        await walletStore.addMoney(Number(this.amountToAdd));
+        this.amountToAdd = '';
+        await this.loadWalletData();
+      } catch (error) {
+        console.error('Error adding money:', error);
+      }
+    },
+
+    async refreshBalance() {
+      await this.loadWalletData();
+    }
+  }
+};
 </script>
 
 <template>
-  <v-container>
-    <v-row>
-      <v-col cols="12" sm="6">
-        <v-card>
-          <v-card-title>Your Wallet</v-card-title>
-          <v-card-text>
-            <!-- Display balance -->
-            <div class="mb-4">
-              Current Balance: ${{ balance.toFixed(2) }}
-            </div>
+  <div class="sub_page" style="background-color: lightgray">
+    <div class="hero_area" style="margin-bottom: 100px;">
+      <HeroBackground/>
+      <HeaderSection/>
+    </div>
+    <v-container class="fill-height">
+      <v-row justify="center" align="center">
+        <v-col cols="12" sm="8" md="6">
+          <v-card>
+            <v-card-title class="text-center text-h5 py-4">
+              Your Wallet Balance
+            </v-card-title>
 
-            <v-row>
-              <v-col>
+            <v-card-text>
+              <v-alert
+                  v-if="error"
+                  type="error"
+                  class="mb-4"
+              >
+                {{ error }}
+              </v-alert>
+
+              <div class="text-center">
+                <div v-if="loading" class="my-4">
+                  <v-progress-circular
+                      indeterminate
+                      color="primary"
+                  ></v-progress-circular>
+                </div>
+                <div v-else class="text-h3 font-weight-bold my-4">
+                  ${{ money.toFixed(2) }}
+                </div>
+              </div>
+            </v-card-text>
+
+            <v-card-text>
+              <v-form @submit.prevent="handleAddMoney">
                 <v-text-field
-                    v-model.number="amount"
+                    v-model="amountToAdd"
                     label="Amount to Add"
                     type="number"
-                    hint="Enter amount"
-                    :rules="[v => v >= 0 || 'Amount must be positive']"
+                    prefix="$"
+                    min="0"
+                    step="0.01"
                 ></v-text-field>
-              </v-col>
-            </v-row>
-            <v-btn
-                @click="addMoney"
-                color="primary"
-                :disabled="amount <= 0"
-            >
-              Add Money
-            </v-btn>
+                <v-btn
+                    color="success"
+                    block
+                    type="submit"
+                    :loading="loading"
+                >
+                  Add Money
+                </v-btn>
+              </v-form>
+            </v-card-text>
 
-            <v-divider class="my-4"></v-divider>
-
-            <v-row>
-              <v-col>
-                <v-select
-                    v-model="selectedCrypto"
-                    :items="cryptos"
-                    item-text="name"
-                    item-value="symbol"
-                    label="Select Cryptocurrency"
-                    :rules="[v => !!v || 'Please select a cryptocurrency']"
-                ></v-select>
-              </v-col>
-            </v-row>
-            <v-btn
-                @click="buyCrypto"
-                color="success"
-                :disabled="!selectedCrypto || balance <= 0"
-            >
-              Buy Crypto
-            </v-btn>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-
-    <v-row>
-      <v-col cols="12">
-        <v-card>
-          <v-card-title>Your Purchases</v-card-title>
-          <v-card-text>
-            <v-list>
-              <template v-if="purchases.length > 0">
-                <v-list-item v-for="(purchase, index) in purchases" :key="index">
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      {{ purchase.cryptoName }} - ${{ purchase.price }}
-                    </v-list-item-title>
-                    <v-list-item-subtitle>Purchased</v-list-item-subtitle>
-                  </v-list-item-content>
-                </v-list-item>
-              </template>
-              <v-list-item v-else>
-                <v-list-item-content>No purchases yet</v-list-item-content>
-              </v-list-item>
-            </v-list>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-  </v-container>
+            <v-card-actions class="justify-center pb-4">
+              <v-btn
+                  color="primary"
+                  @click="refreshBalance"
+                  :loading="loading"
+              >
+                <v-icon left>mdi-refresh</v-icon>
+                Refresh Balance
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-col>
+      </v-row>
+    </v-container>
+  </div>
 </template>
 
 <style scoped>

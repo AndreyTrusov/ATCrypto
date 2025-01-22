@@ -25,7 +25,7 @@ const priceUpdater = new PriceUpdaterService({
     maxChangePercent: 3
 });
 
-priceUpdater.start();
+// priceUpdater.start();
 
 const app = createApp(App)
 

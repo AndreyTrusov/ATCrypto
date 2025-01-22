@@ -60,7 +60,7 @@ app.post('/auth/login', async (req, res) => {
 
         if (rows.length > 0) {
             const user = rows[0];
-            const token = 'dummy-token-' + Math.random();
+            const token = 'dummy-token-' + user.id;
 
             res.json({
                 token,
@@ -117,6 +117,37 @@ app.get('/api/cryptos/price', async (req, res) => {
         res.json(rows);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching cryptos', error });
+    }
+});
+
+app.get('/api/users/money', async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[0];
+        const userId = token?.split('-')[2];
+
+        const [rows] = await pool.execute('SELECT id, money FROM users WHERE id = ?', [userId]);
+        if (rows.length === 0) return res.status(404).json({ message: 'User not found' });
+        res.json(rows);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching user money', error });
+    }
+});
+
+app.post('/api/users/money/add', async (req, res) => {
+    try {
+        const token = req.headers.authorization?.split(' ')[0];
+        const userId = token?.split('-')[2];
+        const { amount } = req.body;
+
+        await pool.execute(
+            'UPDATE users SET money = money + ? WHERE id = ?',
+            [amount, userId]
+        );
+
+        const [rows] = await pool.execute('SELECT money FROM users WHERE id = ?', [userId]);
+        res.json(rows[0]);
+    } catch (error) {
+        res.status(500).json({ message: 'Error adding money', error });
     }
 });
 

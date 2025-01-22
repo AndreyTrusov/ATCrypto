@@ -46,7 +46,6 @@ export class PriceUpdaterService {
             for (const crypto of cryptos) {
                 const changePercent = this.generateRandomChange();
                 const newPrice = crypto.current_price * (1 + changePercent / 100);
-
                 await axios.post(`${this.config.apiUrl}/cryptos/update-price`, {
                     id: crypto.id,
                     price: newPrice
@@ -63,6 +62,7 @@ export class PriceUpdaterService {
         if (this.isRunning) return;
 
         this.isRunning = true;
+        void this.updatePrices();
         this.updateInterval = setInterval(
             () => { void this.updatePrices(); },
             this.config.intervalMs

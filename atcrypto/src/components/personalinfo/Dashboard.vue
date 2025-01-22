@@ -77,7 +77,6 @@ export default {
       <HeroBackground/>
       <HeaderSection/>
     </div>
-
     <div style="background-color: white; margin: 80px; border-radius: 5px; box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);">
       <v-card title="Cryptocurrency Name" flat>
         <template v-slot:text>
@@ -107,10 +106,8 @@ export default {
             v-if="cryptos.length"
             :headers="headers"
             :items="cryptos"
-            :items-length="cryptos.length"
             :search="search"
             loading-text="Loading... Please wait"
-            hide-default-footer
         >
           <template v-slot:item.current_price="{ item }">
             <span :class="getPriceColor(item)">
