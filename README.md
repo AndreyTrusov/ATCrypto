@@ -4,9 +4,21 @@ This project is a **Vue.js** based web application as a part of my Frontend Tech
 
 ## Project Overview
 
-This project is a **Vue.js** based web application for showcasing the features of the `ATCrypto` platform. It is structured to demonstrate reusable components, a clean UI, and robust state management using **Pinia**. The app includes several pages, including a homepage, an about page, team page, and feedback page.
+This project is a **Vue.js** based web application for showcasing the features of the `ATCrypto` platform. It is structured to demonstrate reusable components, a clean UI, and robust state management using **Pinia**. This application includes a **login/registration** system built with Vuetify, a **database setup** for storing user and cryptocurrency data, a dashboard component, and a **full wallet page**.
+
+I earned a 95% grade for this frontend technologies course project at the university:
+<img width="766" alt="image" src="https://github.com/user-attachments/assets/abb2586a-b346-451e-95ed-5fa5e38ec596" />
+
+Web page photos:
 
 ![image](https://github.com/user-attachments/assets/eb80cc91-75d5-4151-9cc9-c9c81c9c13e4)
+
+![image](https://github.com/user-attachments/assets/375a262f-01fa-4b9b-b168-560ab8e70ab9)
+
+![image](https://github.com/user-attachments/assets/4c9bb897-25c8-4a26-bffd-9be2b389a709)
+
+![image](https://github.com/user-attachments/assets/e72aa54c-31ba-4ff6-bf19-91d224edaef1)
+
 
 ---
 
@@ -28,8 +40,20 @@ This project meets the following requirements:
 ## Features
 
 - **Multiple Pages**: 
-  - The app contains several subpages: Home, About Us, Services, Team, Why Us, etc.
+  - The app contains several subpages: Home, About Us, Services, Team, Why Us, Login, Register, Wallet, Dashboard.
   - All pages are dynamically loaded using **Vue Router**.
+ 
+- **Authentication**: 
+  - The app has a login and registration system built with Vuetify components, allowing users to securely access their accounts
+
+- **Database Integration**: 
+  - The application is integrated with a database to store user profiles, cryptocurrency data, and transaction history.
+
+- **Dashboard**: 
+  - The app includes a dashboard component that provides an overview of the user's cryptocurrency holdings and portfolio performance.
+ 
+- **Wallet Page**: 
+  - The wallet page allows users to view their cryptocurrency balances, transaction history, and perform buy/sell operations.
 
 - **State Management**: 
   - The app uses **Pinia** for global state management, including navigation settings and team member data.
@@ -49,6 +73,8 @@ This project meets the following requirements:
 
 - **Vue.js 3.x** (Options API)
 - **Pinia** for state management
+- **Axios** for API calls
+- **Database** ( MongoDB )for storing user and cryptocurrency data
 - **Vue Router** for page navigation
 - **HTML5**, **CSS3**
 - **Bootstrap** for layout and styling
@@ -62,13 +88,21 @@ This project meets the following requirements:
 To run this project locally, follow these steps:
 
 ```bash
-    git clone https://github.com/yourusername/your-repository-name.git
+  git clone https://github.com/yourusername/your-repository-name.git
 
-    cd your-repository-name
+  cd your-repository-name
 
-    npm install
+  npm install
 
-    npm run serve 
+  npm run dev 
+```
+
+Import database and run /backed:
+
+```bash
+  cd ./backed
+
+  npm start
 ```
 
 Open the app in your browser:
