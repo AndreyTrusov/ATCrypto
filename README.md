@@ -88,13 +88,21 @@ This project meets the following requirements:
 To run this project locally, follow these steps:
 
 ```bash
-    git clone https://github.com/yourusername/your-repository-name.git
+  git clone https://github.com/yourusername/your-repository-name.git
 
-    cd your-repository-name
+  cd your-repository-name
 
-    npm install
+  npm install
 
-    npm run serve 
+  npm run dev 
+```
+
+Import database and run /backed:
+
+```bash
+  cd ./backed
+
+  npm start
 ```
 
 Open the app in your browser:
